@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/AIBot.iml" filepath="$PROJECT_DIR$/AIBot.iml" />
+      <module fileurl="file://$PROJECT_DIR$/AIService/AIService.iml" filepath="$PROJECT_DIR$/AIService/AIService.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Bot/Bot.iml" filepath="$PROJECT_DIR$/Bot/Bot.iml" />
+    </modules>
+  </component>
+</project>
