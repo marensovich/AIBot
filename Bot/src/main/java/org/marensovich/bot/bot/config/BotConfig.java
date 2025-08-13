@@ -1,6 +1,6 @@
 package org.marensovich.bot.bot.config;
 
-import org.marensovich.bot.Bot;
+import org.marensovich.bot.bot.Bot;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
