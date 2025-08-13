@@ -1,16 +1,29 @@
 package org.marensovich.bot.bot;
 
+import lombok.Getter;
 import org.marensovich.bot.bot.AI.DeepSeekService;
 import org.marensovich.bot.bot.AI.YandexGptService;
+import org.marensovich.bot.bot.Callback.CallbackManager;
+import org.marensovich.bot.bot.Command.CommandManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.methods.send.SendVoice;
-import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 public class Bot extends TelegramLongPollingBot {
+
+    @Autowired
+    @Getter
+    private CommandManager commandManager;
+
+
+    @Autowired
+    @Getter
+    private CallbackManager callbackManager;
+
+    @Getter
+    private static Bot instance;
 
     private final String botToken;
     private final String botUsername;
@@ -24,23 +37,13 @@ public class Bot extends TelegramLongPollingBot {
     public Bot(String botToken, String botUsername) {
         this.botToken = botToken;
         this.botUsername = botUsername;
+        instance = this;
     }
 
     @Override
     public void onUpdateReceived(Update update) {
-        if (update.getMessage().hasVoice()) {
-            SendVoice sendVoice = new SendVoice();
-            sendVoice.setChatId(update.getMessage().getChatId().toString());
-
-            // Option 1: Send using just the file_id (recommended for simple cases)
-            InputFile voiceInputFile = new InputFile(update.getMessage().getVoice().getFileId());
-            sendVoice.setVoice(voiceInputFile);
-
-            try {
-                execute(sendVoice); // Execute the sendVoice action
-            } catch (TelegramApiException e) {
-                e.printStackTrace();
-            }
+        if (update.hasMessage() && update.getMessage().hasText() && update.getMessage().getText().startsWith("/")) {
+            commandManager.executeCommand(update);
             return;
         }
         if (update.getMessage().getText().startsWith("/deepseek")) {
@@ -88,17 +91,21 @@ public class Bot extends TelegramLongPollingBot {
             }
             return;
         }
-
-        SendMessage message = new SendMessage();
-        message.setText("Вы написали: " + update.getMessage().getText());
-        message.setChatId(update.getMessage().getChatId().toString());
-
-        try {
-            execute(message);
-        } catch (TelegramApiException e) {
-            throw new RuntimeException(e);
+        if (update.hasCallbackQuery()){
+            callbackManager.handleCallback(update);
         }
 
+    }
+    
+    public void sendNoAccessMessage(Update update){
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(update.getMessage().getChatId());
+        sendMessage.setText("⛔ У вас нет прав для выполнения этой команды!");
+        try {
+            execute(sendMessage);
+        } catch (TelegramApiException e){
+            throw new RuntimeException();
+        }
     }
 
     @Override
