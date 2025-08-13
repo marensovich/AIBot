@@ -1,4 +1,4 @@
-package org.marensovich.bot.bot.AI;
+package org.marensovich.bot.bot.AI.GPT;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

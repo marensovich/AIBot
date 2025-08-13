@@ -1,8 +1,8 @@
 package org.marensovich.bot.bot;
 
 import lombok.Getter;
-import org.marensovich.bot.bot.AI.DeepSeekService;
-import org.marensovich.bot.bot.AI.YandexGptService;
+import org.marensovich.bot.bot.AI.GPT.DeepSeekService;
+import org.marensovich.bot.bot.AI.GPT.YandexGptService;
 import org.marensovich.bot.bot.Callback.CallbackManager;
 import org.marensovich.bot.bot.Command.CommandManager;
 import org.springframework.beans.factory.annotation.Autowired;

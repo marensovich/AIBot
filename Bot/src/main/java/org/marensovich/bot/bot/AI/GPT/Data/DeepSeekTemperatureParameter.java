@@ -1,4 +1,4 @@
-package org.marensovich.bot.bot.AI.Data;
+package org.marensovich.bot.bot.AI.GPT.Data;
 
 import lombok.Getter;
 
