@@ -6,4 +6,4 @@ services:
     ports:
       - "${SERVER_PORT}:${SERVER_PORT}"
     env_file:
-      - .env
+      - Bot/src/.env

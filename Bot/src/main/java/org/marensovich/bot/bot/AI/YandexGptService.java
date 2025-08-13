@@ -82,7 +82,7 @@ public class YandexGptService {
 
             return String.format(
                     """
-                    💬 Ответ от Yandex GPT (версия %s):
+                    💬 Ответ от Yandex GPT (версия от %s):
                     
                     %s              
                     """,
