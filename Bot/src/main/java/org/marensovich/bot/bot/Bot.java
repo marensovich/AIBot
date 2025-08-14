@@ -4,15 +4,20 @@ import lombok.Getter;
 import org.marensovich.bot.bot.AI.GPT.DeepSeekService;
 import org.marensovich.bot.bot.AI.GPT.YandexGptService;
 import org.marensovich.bot.bot.AI.Vision.YandexVisionService;
+import org.marensovich.bot.bot.AI.Voice.YandexVoiceService;
 import org.marensovich.bot.bot.Callback.CallbackManager;
 import org.marensovich.bot.bot.Command.CommandManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.GetFile;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.PhotoSize;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.Voice;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.io.InputStream;
 import java.net.URL;
@@ -31,6 +36,7 @@ public class Bot extends TelegramLongPollingBot {
     @Autowired private DeepSeekService deepSeekService;
     @Autowired private YandexGptService yandexGptService;
     @Autowired private YandexVisionService visionService;
+    @Autowired private YandexVoiceService  voiceService;
 
     public Bot(String botToken, String botUsername) {
         this.botToken = botToken;
@@ -40,6 +46,9 @@ public class Bot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
+        if (update.hasMessage() && update.getMessage().hasVoice()) {
+            handleVoiceMessage(update.getMessage());
+        }
         if (update.hasMessage() && update.getMessage().hasPhoto()) {
             handlePhotoMessage(update);
             return;
@@ -56,6 +65,44 @@ public class Bot extends TelegramLongPollingBot {
         if (update.hasCallbackQuery()) {
             callbackManager.handleCallback(update);
         }
+    }
+
+    private void handleVoiceMessage(Message message) {
+        Long chatId = message.getChatId();
+        Voice voice = message.getVoice();
+
+        // Проверка длительности аудио (не более 30 секунд)
+        if (voice.getDuration() > 30) {
+            sendTextMessage(chatId, "⚠️ Аудио слишком длинное (максимум 30 секунд)");
+            return;
+        }
+
+        sendTextMessage(chatId, "🔊 Обрабатываю голосовое сообщение...");
+
+        getVoiceFile(voice.getFileId())
+                .flatMap(audioData -> {
+                    // Проверка размера файла (не более 1 МБ)
+                    if (audioData.length > 1_000_000) {
+                        return Mono.just("⚠️ Аудио файл слишком большой (максимум 1 МБ)");
+                    }
+                    return voiceService.recognizeSpeech(audioData);
+                })
+                .subscribe(
+                        text -> sendTextMessage(chatId, "🔊 Распознанный текст:\n\n" + text),
+                        error -> sendTextMessage(chatId, "❌ Ошибка распознавания: " + error.getMessage())
+                );
+    }
+
+    private Mono<byte[]> getVoiceFile(String fileId) {
+        return Mono.fromCallable(() -> {
+            GetFile getFile = new GetFile(fileId);
+            String filePath = execute(getFile).getFilePath();
+            String fileUrl = "https://api.telegram.org/file/bot" + getBotToken() + "/" + filePath;
+
+            try (InputStream in = new URL(fileUrl).openStream()) {
+                return in.readAllBytes();
+            }
+        }).subscribeOn(Schedulers.boundedElastic());
     }
 
     private void handleDeepSeekCommand(Update update) {
