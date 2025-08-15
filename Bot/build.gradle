@@ -24,6 +24,8 @@ repositories {
 }
 
 dependencies {
+    
+    implementation("io.awspring.cloud:spring-cloud-aws-starter-s3:3.0.0-RC2")
 
     implementation("org.telegram:telegrambots:6.9.7.1")
 

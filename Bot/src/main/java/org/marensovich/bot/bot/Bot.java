@@ -1,29 +1,34 @@
 package org.marensovich.bot.bot;
 
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.marensovich.bot.bot.AI.GPT.DeepSeekService;
 import org.marensovich.bot.bot.AI.GPT.YandexGptService;
 import org.marensovich.bot.bot.AI.Vision.YandexVisionService;
 import org.marensovich.bot.bot.AI.Voice.YandexVoiceService;
 import org.marensovich.bot.bot.Callback.CallbackManager;
 import org.marensovich.bot.bot.Command.CommandManager;
+import org.marensovich.bot.bot.Yandex.Storage.YandexStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.GetFile;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.Message;
-import org.telegram.telegrambots.meta.api.objects.PhotoSize;
-import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.Voice;
+import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Comparator;
 import java.util.List;
 
+@Slf4j
 public class Bot extends TelegramLongPollingBot {
 
     @Autowired @Getter private CommandManager commandManager;
@@ -36,7 +41,8 @@ public class Bot extends TelegramLongPollingBot {
     @Autowired private DeepSeekService deepSeekService;
     @Autowired private YandexGptService yandexGptService;
     @Autowired private YandexVisionService visionService;
-    @Autowired private YandexVoiceService  voiceService;
+    @Autowired private YandexVoiceService voiceService;
+    @Autowired private YandexStorageService storageService;
 
     public Bot(String botToken, String botUsername) {
         this.botToken = botToken;
@@ -47,7 +53,8 @@ public class Bot extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
         if (update.hasMessage() && update.getMessage().hasVoice()) {
-            handleVoiceMessage(update.getMessage());
+            saveAudioFile(update.getMessage());
+            //handleVoiceMessage(update.getMessage());
         }
         if (update.hasMessage() && update.getMessage().hasPhoto()) {
             handlePhotoMessage(update);
@@ -64,6 +71,46 @@ public class Bot extends TelegramLongPollingBot {
         }
         if (update.hasCallbackQuery()) {
             callbackManager.handleCallback(update);
+        }
+    }
+
+    private void saveAudioFile(Message message){
+        Long chatId = message.getChatId();
+        Voice voice = message.getVoice();
+
+        try {
+            // Получаем файл голосового сообщения
+            GetFile getFile = new GetFile(voice.getFileId());
+            File file = execute(getFile);
+            String fileUrl = "https://api.telegram.org/file/bot" + getBotToken() + "/" + file.getFilePath();
+
+            // Создаем папку resources/voice_messages если ее нет
+            Path voiceMessagesDir = Paths.get("Bot/src/main/resources/voice_messages");
+            if (!Files.exists(voiceMessagesDir)) {
+                Files.createDirectories(voiceMessagesDir);
+            }
+
+            // Формируем имя файла
+            String fileName = "voice_" + System.currentTimeMillis() + ".ogg";
+            Path filePath = voiceMessagesDir.resolve(fileName);
+
+            // Скачиваем и сохраняем файл
+            try (InputStream in = new URL(fileUrl).openStream()) {
+                Files.copy(in, filePath, StandardCopyOption.REPLACE_EXISTING);
+                log.info("Voice message saved to: {}", filePath);
+                sendTextMessage(chatId, "✅ Голосовое сообщение сохранено для отладки");
+            }
+
+            try (InputStream stream = new FileInputStream("Bot/src/main/resources/voice_messages/" + fileName)) {
+                storageService.uploadVoiceMessage(
+                        "botvoicedata",
+                        "voicedata/" + fileName,
+                        stream);
+            }
+
+        } catch (Exception e) {
+            log.error("Error saving voice message", e);
+            sendTextMessage(chatId, "❌ Ошибка при сохранении голосового сообщения");
         }
     }
 
