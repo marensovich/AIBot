@@ -63,11 +63,16 @@ public class Bot extends TelegramLongPollingBot {
         if (update.hasMessage() && update.getMessage().hasText()) {
             if (update.getMessage().getText().startsWith("/")) {
                 commandManager.executeCommand(update);
+                return;
             } else if (update.getMessage().getText().startsWith("/deepseek")) {
                 handleDeepSeekCommand(update);
+                return;
             } else if (update.getMessage().getText().startsWith("/yandex")) {
                 handleYandexCommand(update);
+                return;
             }
+            storageService.getVoiceMessage("botvoicedata", "voicedata/voice_1755254885929.ogg");
+            return;
         }
         if (update.hasCallbackQuery()) {
             callbackManager.handleCallback(update);

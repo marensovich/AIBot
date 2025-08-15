@@ -7,10 +7,15 @@ import org.springframework.stereotype.Service;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @Service
 @Slf4j
@@ -47,6 +52,25 @@ public class YandexStorageService {
             s3Client.deleteObject(request);
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public void getVoiceMessage(String bucket, String objectKey) {
+        try {
+            Path projectRoot = Paths.get("").toAbsolutePath();
+            Path targetDir = projectRoot.resolve("Bot/src/main/resources/voicedata");
+            Files.createDirectories(targetDir);
+
+            Path targetFile = targetDir.resolve(Paths.get(objectKey).getFileName());
+
+            GetObjectRequest request = GetObjectRequest.builder()
+                    .bucket(bucket)
+                    .key(objectKey)
+                    .build();
+
+            s3Client.getObject(request, targetFile);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to download voice message to " + objectKey, e);
         }
     }
 
