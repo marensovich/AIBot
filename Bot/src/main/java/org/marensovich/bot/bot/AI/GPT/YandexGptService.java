@@ -33,8 +33,8 @@ public class YandexGptService {
                 .build();
     }
 
-    public Mono<String> getAiResponse(String userMessage) {
-        Map<String, Object> requestBody = createRequestBody(userMessage);
+    public Mono<String> getAiResponse(String userMessage, String model) {
+        Map<String, Object> requestBody = createRequestBody(userMessage, model);
 
         return webClient.post()
                 .uri("/foundationModels/v1/completion")
@@ -44,9 +44,9 @@ public class YandexGptService {
                 .map(this::parseAndFormatResponse);
     }
 
-    private Map<String, Object> createRequestBody(String userMessage) {
+    private Map<String, Object> createRequestBody(String userMessage, String model) {
         return Map.of(
-                "modelUri", "gpt://" + catalogId + "/yandexgpt-lite",
+                "modelUri", "gpt://" + catalogId + "/" + model,
                 "completionOptions", Map.of(
                         "stream", false,
                         "temperature", 0.6,

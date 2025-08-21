@@ -46,10 +46,10 @@ public class DeepSeekService {
                 .build();
     }
 
-    public Mono<String> getAiResponse(String text) {
+    public Mono<String> getAiResponse(String userMessage, String model) {
         return webClient.post()
                 .uri("/chat/completions")
-                .bodyValue(createRequest(text))
+                .bodyValue(createRequest(userMessage, model))
                 .retrieve()
                 .bodyToMono(DeepSeekResponse.class)
                 .timeout(timeout)
@@ -58,9 +58,9 @@ public class DeepSeekService {
                 .onErrorResume(this::handleError);
     }
 
-    private DeepSeekRequest createRequest(String text) {
+    private DeepSeekRequest createRequest(String text, String model) {
         return new DeepSeekRequest(
-                "deepseek-chat",
+                model,
                 new Message[]{
                         new Message("system", "You are a helpful assistant."),
                         new Message("user", text)

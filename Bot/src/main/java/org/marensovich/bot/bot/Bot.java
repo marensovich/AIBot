@@ -8,25 +8,15 @@ import org.marensovich.bot.bot.AI.Vision.YandexVisionService;
 import org.marensovich.bot.bot.AI.Voice.YandexVoiceService;
 import org.marensovich.bot.bot.Callback.CallbackManager;
 import org.marensovich.bot.bot.Command.CommandManager;
+import org.marensovich.bot.bot.Update.UpdateManager;
 import org.marensovich.bot.bot.Yandex.Storage.YandexStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-import org.telegram.telegrambots.meta.api.methods.GetFile;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.*;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.util.Comparator;
-import java.util.List;
 
 @Slf4j
 public class Bot extends TelegramLongPollingBot {
@@ -38,11 +28,12 @@ public class Bot extends TelegramLongPollingBot {
     private final String botToken;
     private final String botUsername;
 
-    @Autowired private DeepSeekService deepSeekService;
-    @Autowired private YandexGptService yandexGptService;
-    @Autowired private YandexVisionService visionService;
-    @Autowired private YandexVoiceService voiceService;
-    @Autowired private YandexStorageService storageService;
+    @Autowired @Getter private DeepSeekService deepSeekService;
+    @Autowired @Getter private YandexGptService yandexGptService;
+    @Autowired @Getter private YandexVisionService visionService;
+    @Autowired @Getter private YandexVoiceService voiceService;
+    @Autowired @Getter private YandexStorageService storageService;
+    @Autowired @Getter private UpdateManager updateManager;
 
     public Bot(String botToken, String botUsername) {
         this.botToken = botToken;
@@ -52,31 +43,54 @@ public class Bot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
+        try {
+            updateManager.updateHandler(update);
+        } catch (TelegramApiException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    /*if (!userService.isUserExists(update.getMessage().getFrom().getId())){
+        userService.createUser(update.getMessage().getFrom().getId());
+    }
         if (update.hasMessage() && update.getMessage().hasVoice()) {
-            saveAudioFile(update.getMessage());
-            //handleVoiceMessage(update.getMessage());
-        }
+        saveAudioFile(update.getMessage());
+        //handleVoiceMessage(update.getMessage());
+    }
         if (update.hasMessage() && update.getMessage().hasPhoto()) {
-            handlePhotoMessage(update);
-            return;
-        }
+        handlePhotoMessage(update);
+        return;
+    }
         if (update.hasMessage() && update.getMessage().hasText()) {
-            if (update.getMessage().getText().startsWith("/")) {
-                commandManager.executeCommand(update);
-                return;
-            } else if (update.getMessage().getText().startsWith("/deepseek")) {
-                handleDeepSeekCommand(update);
-                return;
-            } else if (update.getMessage().getText().startsWith("/yandex")) {
-                handleYandexCommand(update);
-                return;
-            }
-            storageService.getVoiceMessage("botvoicedata", "voicedata/voice_1755254885929.ogg");
+        if (update.getMessage().getText().startsWith("/")) {
+            commandManager.executeCommand(update);
+            return;
+        } else if (update.getMessage().getText().startsWith("/deepseek")) {
+            handleDeepSeekCommand(update);
+            return;
+        } else if (update.getMessage().getText().startsWith("/yandex")) {
+//                handleYandexCommand(update);
             return;
         }
-        if (update.hasCallbackQuery()) {
-            callbackManager.handleCallback(update);
+        storageService.getVoiceMessage("botvoicedata", "voicedata/voice_1755254885929.ogg");
+
+        SendAudio sendAudio = new SendAudio();
+        sendAudio.setChatId(update.getMessage().getChatId());
+
+        Path projectRoot = Paths.get("").toAbsolutePath();
+        Path targetFile = projectRoot.resolve("Bot/src/main/resources/voicedata").resolve("voice_1755254885929.ogg");
+        sendAudio.setAudio(new InputFile(targetFile.toFile()));
+
+        try {
+            execute(sendAudio);
+        } catch (TelegramApiException e) {
+            throw new RuntimeException(e);
         }
+        return;
+    }
+        if (update.hasCallbackQuery()) {
+        callbackManager.handleCallback(update);
     }
 
     private void saveAudioFile(Message message){
@@ -166,8 +180,8 @@ public class Bot extends TelegramLongPollingBot {
             sendTextMessage(update.getMessage().getChatId(), "Ошибка: " + e.getMessage());
         }
     }
-
-    private void handleYandexCommand(Update update) {
+*/
+    /*private void handleYandexCommand(Update update) {
         String userText = update.getMessage().getText().replace("/yandex", "").trim();
         try {
             String aiResponse = yandexGptService.getAiResponse(userText).block();
@@ -179,9 +193,9 @@ public class Bot extends TelegramLongPollingBot {
         } catch (Exception e) {
             sendTextMessage(update.getMessage().getChatId(), "Ошибка: " + e.getMessage());
         }
-    }
+    }*/
 
-    private void handlePhotoMessage(Update update) {
+    /*private void handlePhotoMessage(Update update) {
         List<PhotoSize> photos = update.getMessage().getPhoto();
         PhotoSize photo = photos.stream()
                 .max(Comparator.comparing(PhotoSize::getFileSize))
@@ -227,7 +241,7 @@ public class Bot extends TelegramLongPollingBot {
         String msg = error.getMessage();
         return msg.contains("400") ?
                 "Некорректный запрос. Проверьте формат изображения (JPEG/PNG)" : msg;
-    }
+    }*/
 
     private void sendTextMessage(Long chatId, String text) {
         try {
@@ -250,4 +264,23 @@ public class Bot extends TelegramLongPollingBot {
     public String getBotToken() {
         return botToken;
     }
+
+    public ReplyKeyboardRemove removeKeyboard(){
+        ReplyKeyboardRemove keyboardRemove = new ReplyKeyboardRemove();
+        keyboardRemove.setRemoveKeyboard(true);
+        keyboardRemove.setSelective(false);
+        return keyboardRemove;
+    }
+
+    public void sendErrorMessage(Long chatId, String text) {
+        try {
+            SendMessage message = new SendMessage();
+            message.setChatId(chatId.toString());
+            message.setText(text);
+            execute(message);
+        } catch (TelegramApiException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

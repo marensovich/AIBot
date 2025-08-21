@@ -56,7 +56,7 @@ public class YandexStorageService {
     }
 
     public void getVoiceMessage(String bucket, String objectKey) {
-        try {
+        try {   
             Path projectRoot = Paths.get("").toAbsolutePath();
             Path targetDir = projectRoot.resolve("Bot/src/main/resources/voicedata");
             Files.createDirectories(targetDir);
