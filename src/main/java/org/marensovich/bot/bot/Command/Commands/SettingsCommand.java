@@ -1,5 +1,6 @@
 package org.marensovich.bot.bot.Command.Commands;
 
+import lombok.RequiredArgsConstructor;
 import org.marensovich.bot.bot.AI.GPT.Data.AIModels;
 import org.marensovich.bot.bot.Bot;
 import org.marensovich.bot.db.models.User;
@@ -15,15 +16,17 @@ import org.marensovich.bot.db.repositories.UserRepository;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 @Component
+@RequiredArgsConstructor
 public class SettingsCommand implements Command {
 
     public static final String CALLBACK_PREFIX = "set_model:";
 
-    @Autowired private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     @Override
     public String getName() {
@@ -109,6 +112,36 @@ public class SettingsCommand implements Command {
     public void handleCallbackQuery(Update update) {
         if (update.hasCallbackQuery()) {
             String callbackData = update.getCallbackQuery().getData();
+            String[] parts = callbackData.split(":");
+
+            String modelString = parts[1];
+
+            User user = userRepository.findUserByUserId(update.getCallbackQuery().getFrom().getId());
+
+            Optional<AIModels.YandexModels> yandexModelOpt = Arrays.stream(AIModels.YandexModels.values())
+                    .filter(model -> model.getModel().equals(modelString))
+                    .findFirst();
+
+            if (yandexModelOpt.isPresent()) {
+                user.setGptType(AIModels.YANDEX);
+                user.setYandexGptModel(yandexModelOpt.get());
+                user.setDeepseekGptModel(AIModels.DeepSeekModels.DeepSeek_V3);
+            }
+            else {
+                Optional<AIModels.DeepSeekModels> deepseekModelOpt = Arrays.stream(AIModels.DeepSeekModels.values())
+                        .filter(model -> model.getModel().equals(modelString))
+                        .findFirst();
+
+                if (deepseekModelOpt.isPresent()) {
+                    user.setGptType(AIModels.DEEPSEEK);
+                    user.setDeepseekGptModel(deepseekModelOpt.get());
+                    user.setYandexGptModel(AIModels.YandexModels.YandexLite);
+                } else {
+                    throw new IllegalArgumentException("Unknown model string: " + modelString);
+                }
+            }
+
+            userRepository.save(user);
 
 
 

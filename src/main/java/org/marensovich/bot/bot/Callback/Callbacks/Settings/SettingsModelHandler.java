@@ -1,12 +1,16 @@
 package org.marensovich.bot.bot.Callback.Callbacks.Settings;
 
+import lombok.RequiredArgsConstructor;
 import org.marensovich.bot.bot.Callback.Interface.PrefixCallbackHandler;
 import org.marensovich.bot.bot.Command.Commands.SettingsCommand;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 @Component
+@RequiredArgsConstructor
 public class SettingsModelHandler implements PrefixCallbackHandler {
+
+    private final SettingsCommand settingsCommand;
     @Override
     public String getPrefixCallbackData() {
         return SettingsCommand.CALLBACK_PREFIX;
@@ -14,7 +18,6 @@ public class SettingsModelHandler implements PrefixCallbackHandler {
 
     @Override
     public void handle(Update update) {
-        SettingsCommand settingsCommand = new SettingsCommand();
         settingsCommand.handleCallbackQuery(update);
     }
 }
