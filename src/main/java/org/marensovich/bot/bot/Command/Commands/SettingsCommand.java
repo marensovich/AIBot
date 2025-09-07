@@ -115,15 +115,16 @@ public class SettingsCommand implements Command {
                     .filter(model -> model.getModel().equals(modelString))
                     .findFirst();
 
+            Optional<AIModels.DeepSeekModels> deepseekModelOpt = Arrays.stream(AIModels.DeepSeekModels.values())
+                    .filter(model -> model.getModel().equals(modelString))
+                    .findFirst();
+
             if (yandexModelOpt.isPresent()) {
                 user.setGptType(AIModels.YANDEX);
                 user.setYandexGptModel(yandexModelOpt.get());
                 user.setDeepseekGptModel(AIModels.DeepSeekModels.DeepSeek_V3);
             }
             else {
-                Optional<AIModels.DeepSeekModels> deepseekModelOpt = Arrays.stream(AIModels.DeepSeekModels.values())
-                        .filter(model -> model.getModel().equals(modelString))
-                        .findFirst();
 
                 if (deepseekModelOpt.isPresent()) {
                     user.setGptType(AIModels.DEEPSEEK);
@@ -138,7 +139,14 @@ public class SettingsCommand implements Command {
 
             SendMessage message = new SendMessage();
             message.setChatId(update.getCallbackQuery().getFrom().getId());
-            message.setText("Модель ИИ была успешно обновлена");
+            message.setText("Модель <b>" + modelString + "</b> была успешно выбрана");
+            message.enableHtml(true);
+
+            try {
+                Bot.getInstance().execute(message);
+            } catch (TelegramApiException e) {
+                throw new RuntimeException(e);
+            }
 
         }
     }
