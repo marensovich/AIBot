@@ -37,6 +37,7 @@ public class AiCommand implements Command {
 
         if (userByUserId.isEmpty()) {
             sendMessage(chatId, "Пользователь не найден. Пожалуйста, зарегистрируйтесь.");
+            Bot.getInstance().getCommandManager().unsetActiveCommand(update.getMessage().getFrom().getId());
             return;
         }
 
@@ -52,6 +53,7 @@ public class AiCommand implements Command {
                     String aiResponse = Bot.getInstance().getYandexGptService().getAiResponse(userInput, userModel).block();
 
                     sendMessage(chatId, aiResponse);
+                    Bot.getInstance().getCommandManager().unsetActiveCommand(update.getMessage().getFrom().getId());
                     return;
                 }
                 case DEEPSEEK -> {
@@ -59,10 +61,12 @@ public class AiCommand implements Command {
                     String aiResponse = Bot.getInstance().getDeepSeekService().getAiResponse(userInput, userModel).block();
 
                     sendMessage(chatId, aiResponse);
+                    Bot.getInstance().getCommandManager().unsetActiveCommand(update.getMessage().getFrom().getId());
                     return;
                 }
                 default -> {
                     sendMessage(chatId, "Неизвестный тип ИИ.");
+                    Bot.getInstance().getCommandManager().unsetActiveCommand(update.getMessage().getFrom().getId());
                     return;
                 }
             }
