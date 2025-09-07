@@ -78,17 +78,9 @@ public class YandexGptService {
                     .path("text")
                     .asText();
 
-            String modelVersion = rootNode.path("modelVersion").asText();
 
-            return String.format(
-                    """
-                    💬 Ответ от Yandex GPT (версия от %s):
-                    
-                    %s              
-                    """,
-                    modelVersion,
-                    assistantText
-            );
+            return assistantText;
+
 
         } catch (Exception e) {
             return "⚠️ Ошибка при обработке ответа от Yandex GPT: " + e.getMessage();

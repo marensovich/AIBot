@@ -36,7 +36,16 @@ public class AiCommand implements Command {
         Optional<User> userByUserId = userRepository.getUserByUserId(chatId);
 
         if (userByUserId.isEmpty()) {
-            sendMessage(chatId, "Пользователь не найден. Пожалуйста, зарегистрируйтесь.");
+            SendMessage message = new SendMessage();
+            message.setChatId(String.valueOf(chatId));
+            message.setText("Пользователь не найден. Пожалуйста, зарегистрируйтесь.");
+            message.enableMarkdown(true);
+            try {
+                Bot.getInstance().execute(message);
+            } catch (TelegramApiException e) {
+                throw new RuntimeException(e);
+            }
+
             Bot.getInstance().getCommandManager().unsetActiveCommand(update.getMessage().getFrom().getId());
             return;
         }
@@ -52,7 +61,7 @@ public class AiCommand implements Command {
                     userModel = user.getYandexGptModel().getModel();
                     String aiResponse = Bot.getInstance().getYandexGptService().getAiResponse(userInput, userModel).block();
 
-                    sendMessage(chatId, aiResponse);
+                    sendMessage(chatId, aiResponse, "Yandex", userModel);
                     Bot.getInstance().getCommandManager().unsetActiveCommand(update.getMessage().getFrom().getId());
                     return;
                 }
@@ -60,26 +69,54 @@ public class AiCommand implements Command {
                     userModel = user.getDeepseekGptModel().getModel();
                     String aiResponse = Bot.getInstance().getDeepSeekService().getAiResponse(userInput, userModel).block();
 
-                    sendMessage(chatId, aiResponse);
+                    sendMessage(chatId, aiResponse, "DeepSeek", userModel);
                     Bot.getInstance().getCommandManager().unsetActiveCommand(update.getMessage().getFrom().getId());
                     return;
                 }
                 default -> {
-                    sendMessage(chatId, "Неизвестный тип ИИ.");
+                    SendMessage message = new SendMessage();
+                    message.setChatId(String.valueOf(chatId));
+                    message.setText("Неизвестный тип ИИ.");
+                    message.enableMarkdown(true);
+                    try {
+                        Bot.getInstance().execute(message);
+                    } catch (TelegramApiException e) {
+                        throw new RuntimeException(e);
+                    }
+
                     Bot.getInstance().getCommandManager().unsetActiveCommand(update.getMessage().getFrom().getId());
                     return;
                 }
             }
         }
 
-        sendMessage(chatId, "Введите ваш запрос после команды /ai.");
+        SendMessage message = new SendMessage();
+        message.setChatId(String.valueOf(chatId));
+        message.setText("Введите ваш запрос после команды /ai.");
+        message.enableMarkdown(true);
+        try {
+            Bot.getInstance().execute(message);
+        } catch (TelegramApiException e) {
+            throw new RuntimeException(e);
+        }
+
         Bot.getInstance().getCommandManager().unsetActiveCommand(update.getMessage().getFrom().getId());
     }
 
-    private void sendMessage(long chatId, String text) {
+    private void sendMessage(long chatId, String text, String ai, String model) {
+
+        String response = """
+                Ответ от %ai% - %model%
+                
+                %text%
+                """.replace("%ai%", ai)
+                .replace("%model%", model)
+                .replace("%text%", text);
+
+
         SendMessage message = new SendMessage();
         message.setChatId(String.valueOf(chatId));
-        message.setText(text);
+        message.setText(response);
         message.enableMarkdown(true);
 
         try {
