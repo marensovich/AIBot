@@ -10,6 +10,4 @@ public class BotApplication {
         SpringApplication.run(BotApplication.class, args);
     }
 
-
-
 }

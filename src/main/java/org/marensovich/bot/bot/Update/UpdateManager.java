@@ -48,7 +48,7 @@ public class UpdateManager {
                 }
             }
             if (update.hasCallbackQuery()) {
-                if (userService.isUserExists(update.getMessage().getFrom().getId())){
+                if (userService.isUserExists(update.getCallbackQuery().getFrom().getId())){
                     boolean handled = Bot.getInstance().getCallbackManager().handleCallback(update);
                     if (!handled) {
                         SendMessage errorMsg = new SendMessage();
