@@ -15,10 +15,7 @@ import org.marensovich.bot.bot.Command.Interfaces.Command;
 import org.marensovich.bot.db.repositories.UserRepository;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Component
 @RequiredArgsConstructor
@@ -60,27 +57,23 @@ public class SettingsCommand implements Command {
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rows = new ArrayList<>();
 
-        // Add Yandex models
-        List<InlineKeyboardButton> yandexRow = new ArrayList<>();
+
         for (AIModels.YandexModels model : AIModels.YandexModels.values()) {
             InlineKeyboardButton button = InlineKeyboardButton.builder()
                     .text(model.getModel() + (activeModel == AIModels.YANDEX && model.getModel().equals(activeModel.name()) ? " ✔" : ""))
                     .callbackData("set_model:" + model.getModel())
                     .build();
-            yandexRow.add(button);
+            rows.add(Collections.singletonList(button));
         }
-        rows.add(yandexRow);
 
-        // Add DeepSeek models
-        List<InlineKeyboardButton> deepSeekRow = new ArrayList<>();
         for (AIModels.DeepSeekModels model : AIModels.DeepSeekModels.values()) {
             InlineKeyboardButton button = InlineKeyboardButton.builder()
                     .text(model.getModel() + (activeModel == AIModels.DEEPSEEK && model.getModel().equals(activeModel.name()) ? " ✔" : ""))
                     .callbackData("set_model:" + model.getModel())
                     .build();
-            deepSeekRow.add(button);
+            rows.add(Collections.singletonList(button));
         }
-        rows.add(deepSeekRow);
+
 
         keyboardMarkup.setKeyboard(rows);
         return keyboardMarkup;
@@ -143,7 +136,9 @@ public class SettingsCommand implements Command {
 
             userRepository.save(user);
 
-
+            SendMessage message = new SendMessage();
+            message.setChatId(update.getCallbackQuery().getFrom().getId());
+            message.setText("Модель ИИ была успешно обновлена");
 
         }
     }
