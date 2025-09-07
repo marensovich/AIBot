@@ -3,6 +3,7 @@ package org.marensovich.bot.db.models;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.marensovich.bot.bot.AI.GPT.Data.AIModels;
+import org.marensovich.bot.bot.AI.GPT.Data.TemperatureParameter;
 
 @Data
 @Entity
@@ -27,6 +28,10 @@ public class User {
     @Column(name = "deepseekGptModel")
     @Enumerated(EnumType.STRING)
     private AIModels.DeepSeekModels deepseekGptModel = AIModels.DeepSeekModels.DeepSeek_V3;
+
+    @Column(name = "temperature")
+    @Enumerated(EnumType.STRING)
+    private TemperatureParameter modelTemperature = TemperatureParameter.Default;
 
     @Column(name = "balance", nullable = false)
     private Integer balance = 50;

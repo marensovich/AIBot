@@ -8,12 +8,12 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 
 @Component
 @RequiredArgsConstructor
-public class SettingsModelHandler implements PrefixCallbackHandler {
+public class SettingsModelTemperatureHandler implements PrefixCallbackHandler {
 
     private final SettingsCommand settingsCommand;
     @Override
     public String getPrefixCallbackData() {
-        return SettingsCommand.CALLBACK_MODEL_PREFIX;
+        return SettingsCommand.CALLBACK_TEMP_PREFIX;
     }
 
     @Override

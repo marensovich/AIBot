@@ -2,7 +2,7 @@ package org.marensovich.bot.bot.AI.GPT.Data;
 
 import lombok.Getter;
 
-public enum DeepSeekTemperatureParameter {
+public enum TemperatureParameter {
 
     Default(1.0f),
     Coding(0.0f),
@@ -15,7 +15,7 @@ public enum DeepSeekTemperatureParameter {
     @Getter
     private final float temperature;
 
-    DeepSeekTemperatureParameter(float temperature) {
+    TemperatureParameter(float temperature) {
         this.temperature = temperature;
     }
 }
