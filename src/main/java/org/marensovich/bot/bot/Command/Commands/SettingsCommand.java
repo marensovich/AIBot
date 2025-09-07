@@ -3,6 +3,7 @@ package org.marensovich.bot.bot.Command.Commands;
 import org.marensovich.bot.bot.AI.GPT.Data.AIModels;
 import org.marensovich.bot.bot.Bot;
 import org.marensovich.bot.db.models.User;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -22,11 +23,7 @@ public class SettingsCommand implements Command {
 
     public static final String CALLBACK_PREFIX = "set_model:";
 
-    private final UserRepository userRepository;
-
-    public SettingsCommand(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+    @Autowired private UserRepository userRepository;
 
     @Override
     public String getName() {
@@ -112,6 +109,7 @@ public class SettingsCommand implements Command {
     public void handleCallbackQuery(Update update) {
         if (update.hasCallbackQuery()) {
             String callbackData = update.getCallbackQuery().getData();
+
 
 
         }

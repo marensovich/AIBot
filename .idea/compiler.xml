@@ -8,12 +8,10 @@
           <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-configuration-processor/3.5.4/5bca23f43154ba43fbe171feae198f21d0ed7670/spring-boot-configuration-processor-3.5.4.jar" />
           <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.38/57f8f5e02e92a30fd21b80cbd426a4172b5f8e29/lombok-1.18.38.jar" />
         </processorPath>
+        <module name="Bot.main" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="Bot" target="17" />
-      <module name="Bot.main" target="17" />
-      <module name="Bot.test" target="17" />
+    <bytecodeTargetLevel target="17">
       <module name="org.marensovich.Bot" target="17" />
       <module name="org.marensovich.Bot.main" target="17" />
       <module name="org.marensovich.Bot.test" target="17" />
