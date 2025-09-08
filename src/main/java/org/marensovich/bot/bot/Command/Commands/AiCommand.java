@@ -11,6 +11,8 @@ import org.telegram.telegrambots.meta.api.methods.ActionType;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+
+import java.math.BigDecimal;
 import java.util.Optional;
 
 @Component
@@ -36,9 +38,9 @@ public class AiCommand implements Command {
         String[] parts = messageText.split(" ");
         String commandKey = parts[0];
 
-        Optional<User> userByUserId = userRepository.getUserByUserId(chatId);
+        Optional<User> user = userRepository.getUserByUserId(chatId);
 
-        if (userByUserId.isEmpty()) {
+        if (user.isEmpty()) {
             Bot.getInstance().showBotAction(chatId, ActionType.TYPING);
             SendMessage message = new SendMessage();
             message.setChatId(String.valueOf(chatId));
@@ -54,16 +56,14 @@ public class AiCommand implements Command {
             return;
         }
 
-        User user = userByUserId.get();
         String userModel;
-
         if (parts.length > 1) {
             Bot.getInstance().showBotAction(chatId, ActionType.TYPING);
             String userInput = messageText.substring(commandKey.length()).trim();
             userInput = userInput + "\n Ответь мне текстом в котором нету какого либо форматирования.";
-            switch (user.getGptType()) {
+            switch (user.get().getGptType()) {
                 case YANDEX -> {
-                    userModel = user.getYandexGptModel().getModel();
+                    userModel = user.get().getYandexGptModel().getModel();
 
                     YandexGptService.AiResponse aiResponseObj = Bot.getInstance().getYandexGptService()
                             .getAiResponseWithTokens(userInput, userModel)
@@ -71,12 +71,14 @@ public class AiCommand implements Command {
 
                     int tokens = aiResponseObj.getTotalTokens();
 
-                    sendMessage(chatId, aiResponseObj.getResponse(), "Yandex", userModel, tokens);
+                    sendMessage(chatId, aiResponseObj.getResponse(), "Yandex", userModel, tokens, user.get().getTokens().intValue() - tokens);
+                    user.get().setTokens(BigDecimal.valueOf(user.get().getTokens().intValue() - tokens));
+                    userRepository.save(user.get());
                     Bot.getInstance().getCommandManager().unsetActiveCommand(update.getMessage().getFrom().getId());
                     return;
                 }
                 case DEEPSEEK -> {
-                    userModel = user.getDeepseekGptModel().getModel();
+                    userModel = user.get().getDeepseekGptModel().getModel();
 
                     DeepSeekService.AiResponse aiResponseObj = Bot.getInstance().getDeepSeekService()
                             .getAiResponseWithTokens(userInput, userModel)
@@ -84,7 +86,9 @@ public class AiCommand implements Command {
 
                     int tokens = aiResponseObj.getTotalTokens();
 
-                    sendMessage(chatId, aiResponseObj.getResponse(), "DeepSeek", userModel, tokens);
+                    sendMessage(chatId, aiResponseObj.getResponse(), "DeepSeek", userModel, tokens, user.get().getTokens().intValue() - tokens);
+                    user.get().setTokens(BigDecimal.valueOf(user.get().getTokens().intValue() - tokens));
+                    userRepository.save(user.get());
                     Bot.getInstance().getCommandManager().unsetActiveCommand(update.getMessage().getFrom().getId());
                     return;
                 }
@@ -119,7 +123,7 @@ public class AiCommand implements Command {
         Bot.getInstance().getCommandManager().unsetActiveCommand(update.getMessage().getFrom().getId());
     }
 
-    private void sendMessage(long chatId, String text, String ai, String model, int tokens) {
+    private void sendMessage(long chatId, String text, String ai, String model, int tokens, int currentTokens) {
 
         String response = """
                 Ответ от %ai% - %model%
@@ -127,11 +131,13 @@ public class AiCommand implements Command {
                 ```
                 %text%
                 ```
-                Было использовано %tokens% токена(ов).
+                Было использовано %tokens% токена(ов). 
+                Текущий баланс токенов составляет %current_tokens% токена(ов)
                 """.replace("%ai%", ai)
                 .replace("%model%", model)
                 .replace("%text%", text)
-                .replace("%tokens%", String.valueOf(tokens));
+                .replace("%tokens%", String.valueOf(tokens))
+                .replace("%current_tokens%", String.valueOf(currentTokens));
 
 
         SendMessage message = new SendMessage();
