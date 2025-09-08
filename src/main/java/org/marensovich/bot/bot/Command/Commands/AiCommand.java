@@ -5,6 +5,7 @@ import org.marensovich.bot.bot.Command.Interfaces.Command;
 import org.marensovich.bot.db.models.User;
 import org.marensovich.bot.db.repositories.UserRepository;
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.methods.ActionType;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -36,6 +37,7 @@ public class AiCommand implements Command {
         Optional<User> userByUserId = userRepository.getUserByUserId(chatId);
 
         if (userByUserId.isEmpty()) {
+            Bot.getInstance().showBotAction(chatId, ActionType.TYPING);
             SendMessage message = new SendMessage();
             message.setChatId(String.valueOf(chatId));
             message.setText("Пользователь не найден. Пожалуйста, зарегистрируйтесь.");
@@ -54,6 +56,7 @@ public class AiCommand implements Command {
         String userModel;
 
         if (parts.length > 1) {
+            Bot.getInstance().showBotAction(chatId, ActionType.TYPING);
             String userInput = messageText.substring(commandKey.length()).trim();
             userInput = userInput + "\n Ответь мне текстом в котором нету какого либо форматирования.";
             switch (user.getGptType()) {
@@ -91,6 +94,7 @@ public class AiCommand implements Command {
             }
         }
 
+        Bot.getInstance().showBotAction(chatId, ActionType.TYPING);
         SendMessage message = new SendMessage();
         message.setChatId(String.valueOf(chatId));
         message.setText("Введите ваш запрос после команды /ai.");
