@@ -39,12 +39,12 @@ public class BalanceCommand implements Command {
 
         BigDecimal balance = userRepository.getUserByUserId(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"))
-                .getBalance();
+                .getTokens();
 
         SendMessage message = new SendMessage();
         message.setChatId(chatId.toString());
         message.setText(String.format(
-                "💎 Ваш баланс: %.2f ₽\n\n" +
+                "💎 Ваш баланс: %s токенов\n\n" +
                         "✨ Пополнить баланс можно через Telegram Stars\n" +
                         "🎯 100 звезд = 1 рубль\n\n" +
                         "Выберите сумму для пополнения:",

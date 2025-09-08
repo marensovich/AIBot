@@ -61,11 +61,11 @@ public class PaymentsService {
         paymentRepository.save(payment);
 
         // Обновление баланса пользователя
-        user.setBalance(user.getBalance().add(amountInRubles));
+        user.setTokens(user.getTokens().add(amountInRubles));
         userRepository.save(user);
 
         // Отправка подтверждения пользователю
-        sendPaymentConfirmation(telegramUser, amountInRubles, user.getBalance());
+        sendPaymentConfirmation(telegramUser, amountInRubles, user.getTokens());
     }
 
     private void sendPaymentConfirmation(org.telegram.telegrambots.meta.api.objects.User telegramUser,
@@ -92,7 +92,7 @@ public class PaymentsService {
 
     public BigDecimal getCurrentBalance(Long userId) {
         return userRepository.getUserByUserId(userId)
-                .map(User::getBalance)
+                .map(User::getTokens)
                 .orElse(BigDecimal.ZERO);
     }
 

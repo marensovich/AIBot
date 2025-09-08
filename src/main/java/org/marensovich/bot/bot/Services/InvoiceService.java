@@ -23,7 +23,6 @@ public class InvoiceService {
     private final PricingService pricingService;
 
     public void sendInvoice(Long chatId, BigDecimal amountRubles) {
-        // Конвертация рублей в звезды
         int starsAmount = pricingService.convertRublesToStars(amountRubles);
 
         SendInvoice sendInvoice = new SendInvoice();

@@ -35,7 +35,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     private TemperatureParameter modelTemperature = TemperatureParameter.Default;
 
-    @Column(precision = 10, scale = 2, name = "balance", nullable = false)
-    private BigDecimal balance = BigDecimal.valueOf(10);
+    @Column(precision = 10, name = "tokens", nullable = false)
+    private BigDecimal tokens = BigDecimal.valueOf(20000);
 
 }

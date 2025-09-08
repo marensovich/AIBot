@@ -23,12 +23,9 @@ public class PricingService {
         };
     }
 
-    // Конвертация рублей в звезды для инвойсов (1 рубль = 100 звезд)
     public int convertRublesToStars(BigDecimal rubles) {
         return rubles.multiply(BigDecimal.valueOf(100)).intValue();
     }
-
-    // Конвертация звезд в рубли (100 звезд = 1 рубль)
     public BigDecimal convertStarsToRubles(int stars) {
         return BigDecimal.valueOf(stars)
                 .divide(BigDecimal.valueOf(100), 2, java.math.RoundingMode.HALF_UP);
