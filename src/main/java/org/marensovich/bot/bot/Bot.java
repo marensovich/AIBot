@@ -2,10 +2,10 @@ package org.marensovich.bot.bot;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.marensovich.bot.bot.AI.GPT.DeepSeekService;
-import org.marensovich.bot.bot.AI.GPT.YandexGptService;
-import org.marensovich.bot.bot.AI.Vision.YandexVisionService;
-import org.marensovich.bot.bot.AI.Voice.YandexVoiceService;
+import org.marensovich.bot.services.AI.GPT.DeepSeekService;
+import org.marensovich.bot.services.AI.GPT.YandexGptService;
+import org.marensovich.bot.services.AI.Vision.YandexVisionService;
+import org.marensovich.bot.services.AI.Voice.YandexVoiceService;
 import org.marensovich.bot.bot.Callback.CallbackManager;
 import org.marensovich.bot.bot.Command.CommandManager;
 import org.marensovich.bot.bot.Update.UpdateManager;

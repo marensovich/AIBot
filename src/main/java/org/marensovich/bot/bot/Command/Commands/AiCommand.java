@@ -1,7 +1,7 @@
 package org.marensovich.bot.bot.Command.Commands;
 
-import org.marensovich.bot.bot.AI.GPT.DeepSeekService;
-import org.marensovich.bot.bot.AI.GPT.YandexGptService;
+import org.marensovich.bot.services.AI.GPT.DeepSeekService;
+import org.marensovich.bot.services.AI.GPT.YandexGptService;
 import org.marensovich.bot.bot.Bot;
 import org.marensovich.bot.bot.Command.Interfaces.Command;
 import org.marensovich.bot.db.models.User;

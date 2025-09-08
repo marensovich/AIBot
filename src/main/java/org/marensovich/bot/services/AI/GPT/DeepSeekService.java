@@ -1,4 +1,4 @@
-package org.marensovich.bot.bot.AI.GPT;
+package org.marensovich.bot.services.AI.GPT;
 
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;

@@ -1,4 +1,4 @@
-package org.marensovich.bot.bot.AI.Vision;
+package org.marensovich.bot.services.AI.Vision;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -2,11 +2,10 @@ package org.marensovich.bot.db.models;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import org.marensovich.bot.bot.AI.GPT.Data.AIModels;
-import org.marensovich.bot.bot.AI.GPT.Data.TemperatureParameter;
+import org.marensovich.bot.services.AI.GPT.Data.AIModels;
+import org.marensovich.bot.services.AI.GPT.Data.TemperatureParameter;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 
 @Data
 @Entity

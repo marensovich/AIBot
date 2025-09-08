@@ -1,8 +1,8 @@
 package org.marensovich.bot.bot.Command.Commands;
 
 import lombok.RequiredArgsConstructor;
-import org.marensovich.bot.bot.AI.GPT.Data.AIModels;
-import org.marensovich.bot.bot.AI.GPT.Data.TemperatureParameter;
+import org.marensovich.bot.services.AI.GPT.Data.AIModels;
+import org.marensovich.bot.services.AI.GPT.Data.TemperatureParameter;
 import org.marensovich.bot.bot.Bot;
 import org.marensovich.bot.db.models.User;
 import org.springframework.stereotype.Component;
