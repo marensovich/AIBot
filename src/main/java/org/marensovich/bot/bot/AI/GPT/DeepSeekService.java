@@ -46,7 +46,7 @@ public class DeepSeekService {
                 .build();
     }
 
-    public Mono<String> getAiResponse(String userMessage, String model) {
+    public Mono<AiResponse> getAiResponseWithTokens(String userMessage, String model) {
         return webClient.post()
                 .uri("/chat/completions")
                 .bodyValue(createRequest(userMessage, model))
@@ -54,8 +54,12 @@ public class DeepSeekService {
                 .bodyToMono(DeepSeekResponse.class)
                 .timeout(timeout)
                 .retryWhen(Retry.backoff(3, Duration.ofMillis(500)))
-                .map(this::processResponse)
-                .onErrorResume(this::handleError);
+                .map(this::processResponseWithTokens)
+                .onErrorResume(this::handleErrorWithTokens);
+    }
+    public Mono<String> getAiResponse(String userMessage, String model) {
+        return getAiResponseWithTokens(userMessage, model)
+                .map(AiResponse::getResponse);
     }
 
     private DeepSeekRequest createRequest(String text, String model) {
@@ -69,21 +73,62 @@ public class DeepSeekService {
         );
     }
 
-    private String processResponse(DeepSeekResponse response) {
+    private AiResponse processResponseWithTokens(DeepSeekResponse response) {
         if (response.choices() == null || response.choices().length == 0) {
             throw new RuntimeException("Empty response from AI");
         }
-        return response.choices()[0].message().content();
+
+        String aiResponse = response.choices()[0].message().content();
+        TokenUsage tokenUsage = response.usage();
+
+        return new AiResponse(aiResponse, tokenUsage);
     }
 
-    private Mono<String> handleError(Throwable error) {
+    private Mono<AiResponse> handleErrorWithTokens(Throwable error) {
         log.error("AI request failed: {}", error.getMessage());
-        return Mono.just("Извините, сервис ИИ временно недоступен. Попробуйте позже.");
+        return Mono.just(new AiResponse(
+                "Извините, сервис ИИ временно недоступен. Попробуйте позже.",
+                new TokenUsage(0, 0, 0)
+        ));
     }
 
     // DTO records
     private record DeepSeekRequest(String model, Message[] messages, boolean stream) {}
     private record Message(String role, String content) {}
-    private record DeepSeekResponse(Choice[] choices) {}
+
+    // Обновленный Response с usage
+    private record DeepSeekResponse(Choice[] choices, TokenUsage usage) {}
     private record Choice(Message message) {}
+    private record TokenUsage(int prompt_tokens, int completion_tokens, int total_tokens) {}
+
+    // Класс для возврата ответа и информации о токенах
+    public static class AiResponse {
+        private final String response;
+        private final TokenUsage tokenUsage;
+
+        public AiResponse(String response, TokenUsage tokenUsage) {
+            this.response = response;
+            this.tokenUsage = tokenUsage;
+        }
+
+        public String getResponse() {
+            return response;
+        }
+
+        public TokenUsage getTokenUsage() {
+            return tokenUsage;
+        }
+
+        public int getPromptTokens() {
+            return tokenUsage != null ? tokenUsage.prompt_tokens() : 0;
+        }
+
+        public int getCompletionTokens() {
+            return tokenUsage != null ? tokenUsage.completion_tokens() : 0;
+        }
+
+        public int getTotalTokens() {
+            return tokenUsage != null ? tokenUsage.total_tokens() : 0;
+        }
+    }
 }

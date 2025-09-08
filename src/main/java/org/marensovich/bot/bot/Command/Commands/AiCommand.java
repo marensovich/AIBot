@@ -1,5 +1,7 @@
 package org.marensovich.bot.bot.Command.Commands;
 
+import org.marensovich.bot.bot.AI.GPT.DeepSeekService;
+import org.marensovich.bot.bot.AI.GPT.YandexGptService;
 import org.marensovich.bot.bot.Bot;
 import org.marensovich.bot.bot.Command.Interfaces.Command;
 import org.marensovich.bot.db.models.User;
@@ -63,17 +65,26 @@ public class AiCommand implements Command {
                 case YANDEX -> {
                     userModel = user.getYandexGptModel().getModel();
 
-                    String aiResponse = Bot.getInstance().getYandexGptService().getAiResponse(userInput, userModel).block();
+                    YandexGptService.AiResponse aiResponseObj = Bot.getInstance().getYandexGptService()
+                            .getAiResponseWithTokens(userInput, userModel)
+                            .block();
 
-                    sendMessage(chatId, aiResponse, "Yandex", userModel);
+                    int tokens = aiResponseObj.getTotalTokens();
+
+                    sendMessage(chatId, aiResponseObj.getResponse(), "Yandex", userModel, tokens);
                     Bot.getInstance().getCommandManager().unsetActiveCommand(update.getMessage().getFrom().getId());
                     return;
                 }
                 case DEEPSEEK -> {
                     userModel = user.getDeepseekGptModel().getModel();
-                    String aiResponse = Bot.getInstance().getDeepSeekService().getAiResponse(userInput, userModel).block();
 
-                    sendMessage(chatId, aiResponse, "DeepSeek", userModel);
+                    DeepSeekService.AiResponse aiResponseObj = Bot.getInstance().getDeepSeekService()
+                            .getAiResponseWithTokens(userInput, userModel)
+                            .block();
+
+                    int tokens = aiResponseObj.getTotalTokens();
+
+                    sendMessage(chatId, aiResponseObj.getResponse(), "DeepSeek", userModel, tokens);
                     Bot.getInstance().getCommandManager().unsetActiveCommand(update.getMessage().getFrom().getId());
                     return;
                 }
@@ -108,7 +119,7 @@ public class AiCommand implements Command {
         Bot.getInstance().getCommandManager().unsetActiveCommand(update.getMessage().getFrom().getId());
     }
 
-    private void sendMessage(long chatId, String text, String ai, String model) {
+    private void sendMessage(long chatId, String text, String ai, String model, int tokens) {
 
         String response = """
                 Ответ от %ai% - %model%
@@ -116,9 +127,11 @@ public class AiCommand implements Command {
                 ```
                 %text%
                 ```
+                Было использовано %tokens% токена(ов).
                 """.replace("%ai%", ai)
                 .replace("%model%", model)
-                .replace("%text%", text);
+                .replace("%text%", text)
+                .replace("%tokens%", String.valueOf(tokens));
 
 
         SendMessage message = new SendMessage();
