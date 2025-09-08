@@ -5,6 +5,9 @@ import lombok.Data;
 import org.marensovich.bot.bot.AI.GPT.Data.AIModels;
 import org.marensovich.bot.bot.AI.GPT.Data.TemperatureParameter;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
 @Data
 @Entity
 @Table(name = "users")
@@ -33,7 +36,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     private TemperatureParameter modelTemperature = TemperatureParameter.Default;
 
-    @Column(name = "balance", nullable = false)
-    private Integer balance = 50;
+    @Column(precision = 10, scale = 2, name = "balance", nullable = false)
+    private BigDecimal balance = BigDecimal.valueOf(10);
 
 }
