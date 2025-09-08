@@ -55,7 +55,7 @@ public class AiCommand implements Command {
 
         if (parts.length > 1) {
             String userInput = messageText.substring(commandKey.length()).trim();
-            userInput = userInput + "Ответь мне текстом в котором нету какого либо форматирования.";
+            userInput = userInput + "\n Ответь мне текстом в котором нету какого либо форматирования.";
             switch (user.getGptType()) {
                 case YANDEX -> {
                     userModel = user.getYandexGptModel().getModel();
