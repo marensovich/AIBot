@@ -1,11 +1,11 @@
 package org.marensovich.bot.bot.Command.Commands;
 
-import org.marensovich.bot.services.AI.GPT.DeepSeekService;
-import org.marensovich.bot.services.AI.GPT.YandexGptService;
+import org.marensovich.bot.bot.Services.AI.GPT.DeepSeekService;
+import org.marensovich.bot.bot.Services.AI.GPT.YandexGptService;
 import org.marensovich.bot.bot.Bot;
 import org.marensovich.bot.bot.Command.Interfaces.Command;
-import org.marensovich.bot.db.models.User;
-import org.marensovich.bot.db.repositories.UserRepository;
+import org.marensovich.bot.bot.Database.Models.User;
+import org.marensovich.bot.bot.Database.Repositories.UserRepository;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.ActionType;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;

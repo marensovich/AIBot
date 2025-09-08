@@ -1,10 +1,10 @@
 package org.marensovich.bot.bot.Command.Commands;
 
 import lombok.RequiredArgsConstructor;
-import org.marensovich.bot.services.AI.GPT.Data.AIModels;
-import org.marensovich.bot.services.AI.GPT.Data.TemperatureParameter;
+import org.marensovich.bot.bot.Services.AI.GPT.Data.AIModels;
+import org.marensovich.bot.bot.Services.AI.GPT.Data.TemperatureParameter;
 import org.marensovich.bot.bot.Bot;
-import org.marensovich.bot.db.models.User;
+import org.marensovich.bot.bot.Database.Models.User;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -13,7 +13,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import org.marensovich.bot.bot.Command.Interfaces.Command;
-import org.marensovich.bot.db.repositories.UserRepository;
+import org.marensovich.bot.bot.Database.Repositories.UserRepository;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
 import java.util.*;

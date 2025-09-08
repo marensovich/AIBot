@@ -1,4 +1,4 @@
-package org.marensovich.bot.db.models;
+package org.marensovich.bot.bot.Database.Models;
 
 import jakarta.persistence.*;
 import lombok.Data;

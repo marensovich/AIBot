@@ -1,13 +1,13 @@
-package org.marensovich.bot.services;
+package org.marensovich.bot.bot.Services;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.marensovich.bot.bot.Bot;
 import org.marensovich.bot.bot.Data.PaymentsStatus;
-import org.marensovich.bot.db.models.Payments;
-import org.marensovich.bot.db.models.User;
-import org.marensovich.bot.db.repositories.PaymentsRepository;
-import org.marensovich.bot.db.repositories.UserRepository;
+import org.marensovich.bot.bot.Database.Models.Payments;
+import org.marensovich.bot.bot.Database.Models.User;
+import org.marensovich.bot.bot.Database.Repositories.PaymentsRepository;
+import org.marensovich.bot.bot.Database.Repositories.UserRepository;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.payments.SuccessfulPayment;

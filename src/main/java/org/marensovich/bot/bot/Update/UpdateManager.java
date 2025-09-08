@@ -1,7 +1,7 @@
 package org.marensovich.bot.bot.Update;
 
 import org.marensovich.bot.bot.Bot;
-import org.marensovich.bot.services.UserService;
+import org.marensovich.bot.bot.Services.UserService;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;

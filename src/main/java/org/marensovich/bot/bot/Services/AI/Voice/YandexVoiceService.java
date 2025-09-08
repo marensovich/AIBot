@@ -1,4 +1,4 @@
-package org.marensovich.bot.services.AI.Voice;
+package org.marensovich.bot.bot.Services.AI.Voice;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

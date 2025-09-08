@@ -1,7 +1,7 @@
-package org.marensovich.bot.services;
+package org.marensovich.bot.bot.Services;
 
-import org.marensovich.bot.db.models.User;
-import org.marensovich.bot.db.repositories.UserRepository;
+import org.marensovich.bot.bot.Database.Models.User;
+import org.marensovich.bot.bot.Database.Repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -1,9 +1,9 @@
-package org.marensovich.bot.db.models;
+package org.marensovich.bot.bot.Database.Models;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import org.marensovich.bot.services.AI.GPT.Data.AIModels;
-import org.marensovich.bot.services.AI.GPT.Data.TemperatureParameter;
+import org.marensovich.bot.bot.Services.AI.GPT.Data.AIModels;
+import org.marensovich.bot.bot.Services.AI.GPT.Data.TemperatureParameter;
 
 import java.math.BigDecimal;
 

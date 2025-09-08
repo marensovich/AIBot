@@ -1,4 +1,4 @@
-package org.marensovich.bot.bot.config;
+package org.marensovich.bot.bot.Config;
 
 import org.marensovich.bot.bot.Bot;
 import org.springframework.beans.factory.annotation.Value;

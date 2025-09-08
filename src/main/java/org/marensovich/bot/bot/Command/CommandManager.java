@@ -2,11 +2,10 @@ package org.marensovich.bot.bot.Command;
 
 import lombok.extern.slf4j.Slf4j;
 import org.marensovich.bot.bot.Bot;
-import org.marensovich.bot.bot.Command.Commands.AiCommand;
 import org.marensovich.bot.bot.Command.Commands.CancelCommand;
 import org.marensovich.bot.bot.Command.Interfaces.AdminCommand;
 import org.marensovich.bot.bot.Command.Interfaces.Command;
-import org.marensovich.bot.services.UserService;
+import org.marensovich.bot.bot.Services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;

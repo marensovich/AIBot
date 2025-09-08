@@ -1,4 +1,4 @@
-package org.marensovich.bot.services;
+package org.marensovich.bot.bot.Services;
 
 import org.springframework.stereotype.Service;
 

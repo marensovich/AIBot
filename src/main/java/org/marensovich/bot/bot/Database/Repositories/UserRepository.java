@@ -1,6 +1,6 @@
-package org.marensovich.bot.db.repositories;
+package org.marensovich.bot.bot.Database.Repositories;
 
-import org.marensovich.bot.db.models.User;
+import org.marensovich.bot.bot.Database.Models.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
