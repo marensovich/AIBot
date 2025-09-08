@@ -2,12 +2,14 @@ package org.marensovich.bot.bot.Command;
 
 import lombok.extern.slf4j.Slf4j;
 import org.marensovich.bot.bot.Bot;
+import org.marensovich.bot.bot.Command.Commands.BalanceCommand;
 import org.marensovich.bot.bot.Command.Commands.CancelCommand;
 import org.marensovich.bot.bot.Command.Interfaces.AdminCommand;
 import org.marensovich.bot.bot.Command.Interfaces.Command;
 import org.marensovich.bot.bot.Services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.WebApplicationContext;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -24,6 +26,7 @@ public class CommandManager {
     private final Map<Long, Command> activeCommands = new HashMap<>();
 
     @Autowired private UserService userService;
+    @Autowired private WebApplicationContext applicationContext;
 
     @Autowired
     public CommandManager(List<Command> commandList, List<AdminCommand> adminCommandList) {
@@ -45,6 +48,11 @@ public class CommandManager {
         }
         if (hasActiveCommand(update.getMessage().getFrom().getId())){
             Command activeCommand = activeCommands.get(update.getMessage().getFrom().getId());
+            if (activeCommand instanceof BalanceCommand) {
+                BalanceCommand balanceCommand = applicationContext.getBean(BalanceCommand.class);
+                balanceCommand.execute(update);
+                return true;
+            }
             if (update.hasMessage() && update.getMessage().hasText()){
                 if (update.getMessage().getText().startsWith("/start")){
                     new CancelCommand().execute(update);
