@@ -55,10 +55,11 @@ public class AiCommand implements Command {
 
         if (parts.length > 1) {
             String userInput = messageText.substring(commandKey.length()).trim();
-
+            userInput = userInput + "Ответь мне текстом в котором нету какого либо форматирования.";
             switch (user.getGptType()) {
                 case YANDEX -> {
                     userModel = user.getYandexGptModel().getModel();
+
                     String aiResponse = Bot.getInstance().getYandexGptService().getAiResponse(userInput, userModel).block();
 
                     sendMessage(chatId, aiResponse, "Yandex", userModel);
@@ -108,7 +109,9 @@ public class AiCommand implements Command {
         String response = """
                 Ответ от %ai% - %model%
                 
+                ```
                 %text%
+                ```
                 """.replace("%ai%", ai)
                 .replace("%model%", model)
                 .replace("%text%", text);
