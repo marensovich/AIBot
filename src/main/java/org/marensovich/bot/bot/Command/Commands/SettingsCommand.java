@@ -47,7 +47,7 @@ public class SettingsCommand implements Command {
 
             InlineKeyboardMarkup keyboard = buildInlineKeyboard(activeModel, userTempValue, user.get());
 
-            sendMessageWithInlineKeyboard(update.getMessage().getChatId(), "Select an AI Model:", keyboard);
+            sendMessageWithInlineKeyboard(update.getMessage().getChatId(), "Выберите модель ИИ и его температуру:", keyboard);
         } else {
             sendMessageWithInlineKeyboard(update.getMessage().getChatId(), "User not found.", null);
         }
@@ -227,7 +227,7 @@ public class SettingsCommand implements Command {
                         user.setDeepseekGptModel(deepseekModelOpt.get());
                         user.setYandexGptModel(AIModels.YandexModels.YandexLite);
                     } else {
-                        throw new IllegalArgumentException("Unknown model string: " + modelString);
+                        throw new IllegalArgumentException("Неизвестная модель ИИ: " + modelString);
                     }
                 }
 
@@ -236,7 +236,7 @@ public class SettingsCommand implements Command {
                 TemperatureParameter userTempValue = user.getModelTemperature();
                 InlineKeyboardMarkup updatedKeyboard = buildInlineKeyboard(activeModel, userTempValue, user);
 
-                updateMessageWithInlineKeyboard(chatId, messageId, "Select an AI Model:", updatedKeyboard);
+                updateMessageWithInlineKeyboard(chatId, messageId, "Выберите модель ИИ и его температуру:", updatedKeyboard);
 
 
             } else if (callbackData.startsWith(CALLBACK_TEMP_PREFIX)) {
@@ -258,7 +258,7 @@ public class SettingsCommand implements Command {
                     TemperatureParameter userTempValue = user.getModelTemperature();
                     InlineKeyboardMarkup updatedKeyboard = buildInlineKeyboard(activeModel, userTempValue, user);
 
-                    updateMessageWithInlineKeyboard(chatId, messageId, "Select an AI Model:", updatedKeyboard);
+                    updateMessageWithInlineKeyboard(chatId, messageId, "Выберите модель ИИ и его температуру:", updatedKeyboard);
 
 
                 } else {
