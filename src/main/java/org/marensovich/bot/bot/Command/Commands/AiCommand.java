@@ -86,6 +86,7 @@ public class AiCommand implements Command {
                             aiResponseObj.getResponse(),
                             aiResponseObj.getPromptTokens(),
                             aiResponseObj.getCompletionTokens(),
+                            aiResponseObj.getTotalTokens(),
                             user.get().getGptType(),
                             user.get().getDeepseekGptModel(),
                             AIModels.YandexModels.valueOf(user.get().getYandexGptModel().toString())
@@ -113,6 +114,7 @@ public class AiCommand implements Command {
                             aiResponseObj.getResponse(),
                             aiResponseObj.getPromptTokens(),
                             aiResponseObj.getCompletionTokens(),
+                            aiResponseObj.getTotalTokens(),
                             user.get().getGptType(),
                             AIModels.DeepSeekModels.valueOf(user.get().getDeepseekGptModel().toString()),
                             user.get().getYandexGptModel()

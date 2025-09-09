@@ -33,6 +33,9 @@ public class Responce {
     @Column(name = "responseTokens", nullable = false)
     private BigDecimal responseTokens;
 
+    @Column(name = "totalTokens", nullable = false)
+    private BigDecimal totalTokens;
+
     @Column(name = "modelType", nullable = false)
     @Enumerated(EnumType.STRING)
     private AIModels modelType;

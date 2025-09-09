@@ -19,6 +19,7 @@ public class ResponceService {
             String responceMessage,
             int requestTokens,
             int responceTokens,
+            int totalTokens,
             AIModels modelType,
             AIModels.DeepSeekModels deepSeekModel,
             AIModels.YandexModels yandexModel
@@ -29,6 +30,7 @@ public class ResponceService {
         responce.setResponceMessage(responceMessage);
         responce.setRequestTokens(BigDecimal.valueOf(requestTokens));
         responce.setResponseTokens(BigDecimal.valueOf(responceTokens));
+        responce.setTotalTokens(BigDecimal.valueOf(totalTokens));
         responce.setModelType(modelType);
         responce.setDeepSeekModels(deepSeekModel);
         responce.setYandexModels(yandexModel);
