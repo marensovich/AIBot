@@ -1,12 +1,10 @@
 package org.marensovich.bot.bot.Command.Commands;
 
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.marensovich.bot.bot.Bot;
 import org.marensovich.bot.bot.Command.Interfaces.Command;
 import org.marensovich.bot.bot.Database.Repositories.UserRepository;
 import org.marensovich.bot.bot.Services.InvoiceService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;

@@ -5,16 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.marensovich.bot.bot.Bot;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendInvoice;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.payments.LabeledPrice;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Locale;
 
 @Service
@@ -32,8 +28,8 @@ public class InvoiceService {
         sendInvoice.setTitle("Пополнение баланса");
         sendInvoice.setDescription("Пополнение баланса на " + formatNumberWithDots(amountTokens) + " токенов");
         sendInvoice.setPayload("topup_" + System.currentTimeMillis());
-        sendInvoice.setProviderToken("YOUR_PROVIDER_TOKEN");
         sendInvoice.setCurrency("XTR");
+        sendInvoice.setProviderToken("token");
         sendInvoice.setPrices(Collections.singletonList(
                 new LabeledPrice("Рубли", starsAmount)
         ));
