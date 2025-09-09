@@ -1,11 +1,14 @@
 package org.marensovich.bot.bot.Command.Commands;
 
+import org.marensovich.bot.bot.Services.AI.GPT.Data.AIModels;
 import org.marensovich.bot.bot.Services.AI.GPT.DeepSeekService;
 import org.marensovich.bot.bot.Services.AI.GPT.YandexGptService;
 import org.marensovich.bot.bot.Bot;
 import org.marensovich.bot.bot.Command.Interfaces.Command;
 import org.marensovich.bot.bot.Database.Models.User;
 import org.marensovich.bot.bot.Database.Repositories.UserRepository;
+import org.marensovich.bot.bot.Services.ResponceService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.ActionType;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -19,6 +22,7 @@ import java.util.Optional;
 public class AiCommand implements Command {
 
     private final UserRepository userRepository;
+    @Autowired private ResponceService responceService;
 
     public AiCommand(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -60,6 +64,7 @@ public class AiCommand implements Command {
         if (parts.length > 1) {
             Bot.getInstance().showBotAction(chatId, ActionType.TYPING);
             String userInput = messageText.substring(commandKey.length()).trim();
+            String userInputClear = userInput;
             userInput = userInput + "\n Ответь мне текстом в котором нету какого либо форматирования.";
             switch (user.get().getGptType()) {
                 case YANDEX -> {
@@ -74,6 +79,18 @@ public class AiCommand implements Command {
                     sendMessage(chatId, aiResponseObj.getResponse(), "Yandex", userModel, tokens, user.get().getTokens().intValue() - tokens);
                     user.get().setTokens(BigDecimal.valueOf(user.get().getTokens().intValue() - tokens));
                     userRepository.save(user.get());
+
+                    responceService.saveResponce(
+                            user.get().getUserId(),
+                            userInputClear,
+                            aiResponseObj.getResponse(),
+                            aiResponseObj.getPromptTokens(),
+                            aiResponseObj.getCompletionTokens(),
+                            user.get().getGptType(),
+                            user.get().getDeepseekGptModel(),
+                            AIModels.YandexModels.valueOf(user.get().getYandexGptModel().toString())
+                    );
+
                     Bot.getInstance().getCommandManager().unsetActiveCommand(update.getMessage().getFrom().getId());
                     return;
                 }
@@ -89,6 +106,18 @@ public class AiCommand implements Command {
                     sendMessage(chatId, aiResponseObj.getResponse(), "DeepSeek", userModel, tokens, user.get().getTokens().intValue() - tokens);
                     user.get().setTokens(BigDecimal.valueOf(user.get().getTokens().intValue() - tokens));
                     userRepository.save(user.get());
+
+                    responceService.saveResponce(
+                            user.get().getUserId(),
+                            userInputClear,
+                            aiResponseObj.getResponse(),
+                            aiResponseObj.getPromptTokens(),
+                            aiResponseObj.getCompletionTokens(),
+                            user.get().getGptType(),
+                            AIModels.DeepSeekModels.valueOf(user.get().getDeepseekGptModel().toString()),
+                            user.get().getYandexGptModel()
+                    );
+
                     Bot.getInstance().getCommandManager().unsetActiveCommand(update.getMessage().getFrom().getId());
                     return;
                 }
