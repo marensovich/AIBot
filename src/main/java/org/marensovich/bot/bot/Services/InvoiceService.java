@@ -3,6 +3,8 @@ package org.marensovich.bot.bot.Services;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.marensovich.bot.bot.Bot;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendInvoice;
 import org.telegram.telegrambots.meta.api.objects.payments.LabeledPrice;
@@ -19,6 +21,10 @@ import java.util.Locale;
 public class InvoiceService {
 
     private final PricingService pricingService;
+    @Autowired TextService textService;
+
+    @Value("${telegram.bot.providerInvoiceToken}")
+    private String providerToken;
 
     public void sendInvoice(Long chatId, BigDecimal amountTokens) {
         int starsAmount = pricingService.convertTokensToStars(amountTokens);
@@ -26,10 +32,10 @@ public class InvoiceService {
         SendInvoice sendInvoice = new SendInvoice();
         sendInvoice.setChatId(chatId.toString());
         sendInvoice.setTitle("Пополнение баланса");
-        sendInvoice.setDescription("Пополнение баланса на " + formatNumberWithDots(amountTokens) + " токенов");
+        sendInvoice.setDescription("Пополнение баланса на " + formatNumberWithDots(amountTokens) + " " + textService.tokensFormat(amountTokens.intValue()));
         sendInvoice.setPayload("topup_" + System.currentTimeMillis());
         sendInvoice.setCurrency("XTR");
-        sendInvoice.setProviderToken("token");
+        sendInvoice.setProviderToken(providerToken);
         sendInvoice.setPrices(Collections.singletonList(
                 new LabeledPrice("Рубли", starsAmount)
         ));

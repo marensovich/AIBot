@@ -8,6 +8,7 @@ import org.marensovich.bot.bot.Database.Models.Payments;
 import org.marensovich.bot.bot.Database.Models.User;
 import org.marensovich.bot.bot.Database.Repositories.PaymentsRepository;
 import org.marensovich.bot.bot.Database.Repositories.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.payments.SuccessfulPayment;
@@ -27,17 +28,15 @@ public class PaymentsService {
     private final PaymentsRepository paymentRepository;
     private final UserRepository userRepository;
     private final Bot bot;
+    @Autowired private TextService textService;
 
-    // Курс конвертации: 1 звезда = 1 рубль
     private static final BigDecimal STARS_TO_RUBLES_RATE = BigDecimal.ONE;
 
     public void handleStarsPayment(SuccessfulPayment successfulPayment, org.telegram.telegrambots.meta.api.objects.User telegramUser) {
-        // Конвертация звезд в рубли (1 звезда = 1 рубль)
         BigDecimal amountInRubles = new BigDecimal(successfulPayment.getTotalAmount())
                 .divide(new BigDecimal(100), 2, RoundingMode.HALF_UP);
 
 
-        // Получаем пользователя из базы
         Optional<User> userOptional = userRepository.getUserByUserId(telegramUser.getId());
 
         if (userOptional.isEmpty()) {
@@ -46,13 +45,11 @@ public class PaymentsService {
         }
 
         User user = userOptional.get();
-
-        // Создаем запись о платеже
         Payments payment = new Payments();
         payment.setUserId(user.getUserId());
         payment.setTelegramPaymentId(successfulPayment.getTelegramPaymentChargeId());
         payment.setAmount(amountInRubles);
-        payment.setCurrency("RUB"); // Указываем рубли
+        payment.setCurrency("RUB");
         payment.setPayload(successfulPayment.getInvoicePayload());
         payment.setStatus(PaymentsStatus.COMPLETED);
         payment.setCreatedAt(LocalDateTime.now());
@@ -60,22 +57,22 @@ public class PaymentsService {
 
         paymentRepository.save(payment);
 
-        // Обновление баланса пользователя
         user.setTokens(user.getTokens().add(amountInRubles));
         userRepository.save(user);
 
-        // Отправка подтверждения пользователю
         sendPaymentConfirmation(telegramUser, amountInRubles, user.getTokens());
     }
 
     private void sendPaymentConfirmation(org.telegram.telegrambots.meta.api.objects.User telegramUser,
                                          BigDecimal amount, BigDecimal newBalance) {
         String message = String.format(
-                "✅ Ваш баланс пополнен на %.2f ₽!\n\n" +
-                        "💎 Новый баланс: %.2f ₽\n" +
+                "✅ Ваш баланс пополнен на %s %s!\n\n" +
+                        "💎 Новый баланс: %s %s\n" +
                         "🕐 Дата: %s",
                 amount,
+                textService.tokensFormat(amount.intValue()),
                 newBalance,
+                textService.tokensFormat(newBalance.intValue()),
                 LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"))
         );
 
@@ -96,7 +93,6 @@ public class PaymentsService {
                 .orElse(BigDecimal.ZERO);
     }
 
-    // Метод для конвертации звезд в рубли (если нужен в других местах)
     public BigDecimal convertStarsToRubles(int stars) {
         return new BigDecimal(stars)
                 .multiply(STARS_TO_RUBLES_RATE)
