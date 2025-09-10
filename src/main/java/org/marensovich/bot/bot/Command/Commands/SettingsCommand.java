@@ -36,9 +36,16 @@ public class SettingsCommand implements Command {
 
     @Override
     public void execute(Update update) {
-        Bot.getInstance().getCommandManager().setActiveCommand(update.getMessage().getFrom().getId(), this);
+        Long userId;
+        if (update.hasCallbackQuery()) {
+            userId = update.getCallbackQuery().getFrom().getId();
+        } else {
+            userId = update.getMessage().getFrom().getId();
+        }
 
-        Optional<User> user = userRepository.getUserByUserId(update.getMessage().getFrom().getId());
+        Bot.getInstance().getCommandManager().setActiveCommand(userId, this);
+
+        Optional<User> user = userRepository.getUserByUserId(userId);
 
         if (user.isPresent()) {
             AIModels activeModel = getActiveModelForUser(user.get());
@@ -47,12 +54,12 @@ public class SettingsCommand implements Command {
 
             InlineKeyboardMarkup keyboard = buildInlineKeyboard(activeModel, userTempValue, user.get());
 
-            sendMessageWithInlineKeyboard(update.getMessage().getChatId(), "Выберите модель ИИ и его температуру:", keyboard);
+            sendMessageWithInlineKeyboard(userId, "Выберите модель ИИ и его температуру:", keyboard);
         } else {
-            sendMessageWithInlineKeyboard(update.getMessage().getChatId(), "User not found.", null);
+            sendMessageWithInlineKeyboard(userId, "User not found.", null);
         }
 
-        Bot.getInstance().getCommandManager().unsetActiveCommand(update.getMessage().getFrom().getId());
+        Bot.getInstance().getCommandManager().unsetActiveCommand(userId);
     }
 
     private InlineKeyboardMarkup buildInlineKeyboard(AIModels activeModel, TemperatureParameter activeTemperature, User user) {

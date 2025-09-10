@@ -13,13 +13,16 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.ActionType;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.math.BigDecimal;
-import java.util.Optional;
+import java.util.*;
 
 @Component
 public class AiCommand implements Command {
+    public static final String CALLBACK_SETTINGS = "aicommand_runsettings";
 
     private final UserRepository userRepository;
     @Autowired private ResponceService responceService;
@@ -171,15 +174,38 @@ public class AiCommand implements Command {
                 .replace("%current_tokens%", String.valueOf(currentTokens));
 
 
+        InlineKeyboardMarkup keyboard = createBalanceKeyboard();
+
         SendMessage message = new SendMessage();
         message.setChatId(String.valueOf(chatId));
         message.setText(response);
         message.enableMarkdown(true);
+        message.setReplyMarkup(keyboard);
 
         try {
             Bot.getInstance().execute(message);
         } catch (TelegramApiException e) {
             throw new RuntimeException(e);
         }
+    }
+
+
+    private InlineKeyboardMarkup createBalanceKeyboard() {
+        InlineKeyboardMarkup keyboard = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+
+        rows.add(Collections.singletonList(
+                createButton("💎 Изменить модель.", CALLBACK_SETTINGS)
+        ));
+
+        keyboard.setKeyboard(rows);
+        return keyboard;
+    }
+
+    private InlineKeyboardButton createButton(String text, String callbackData) {
+        return InlineKeyboardButton.builder()
+                .text(text)
+                .callbackData(callbackData)
+                .build();
     }
 }
