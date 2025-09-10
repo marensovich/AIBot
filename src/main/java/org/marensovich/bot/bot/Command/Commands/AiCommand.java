@@ -8,6 +8,7 @@ import org.marensovich.bot.bot.Command.Interfaces.Command;
 import org.marensovich.bot.bot.Database.Models.User;
 import org.marensovich.bot.bot.Database.Repositories.UserRepository;
 import org.marensovich.bot.bot.Services.ResponceService;
+import org.marensovich.bot.bot.Services.TextService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.ActionType;
@@ -26,6 +27,7 @@ public class AiCommand implements Command {
 
     private final UserRepository userRepository;
     @Autowired private ResponceService responceService;
+    @Autowired private TextService textService;
 
     public AiCommand(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -165,13 +167,14 @@ public class AiCommand implements Command {
                 ```
                 %text%
                 ```
-                Было использовано %tokens% токена(ов). 
-                Текущий баланс токенов составляет %current_tokens% токена(ов)
+                Было использовано %tokens% %tokenWorld%. 
+                Текущий баланс токенов составляет %current_tokens% %tokenWorld%
                 """.replace("%ai%", ai)
                 .replace("%model%", model)
                 .replace("%text%", text)
                 .replace("%tokens%", String.valueOf(tokens))
-                .replace("%current_tokens%", String.valueOf(currentTokens));
+                .replace("%current_tokens%", String.valueOf(currentTokens))
+                .replace("%tokenWorld%", textService.tokensFormat(tokens));
 
 
         InlineKeyboardMarkup keyboard = createBalanceKeyboard();

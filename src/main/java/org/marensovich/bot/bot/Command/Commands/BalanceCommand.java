@@ -5,6 +5,8 @@ import org.marensovich.bot.bot.Bot;
 import org.marensovich.bot.bot.Command.Interfaces.Command;
 import org.marensovich.bot.bot.Database.Repositories.UserRepository;
 import org.marensovich.bot.bot.Services.InvoiceService;
+import org.marensovich.bot.bot.Services.TextService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -26,6 +28,7 @@ public class BalanceCommand implements Command {
 
     private final UserRepository userRepository;
     private final InvoiceService invoiceService;
+    @Autowired private TextService textService;
 
     @Override
     public String getName() {
@@ -56,11 +59,12 @@ public class BalanceCommand implements Command {
         SendMessage message = new SendMessage();
         message.setChatId(chatId.toString());
         message.setText(String.format(
-                "💎 Ваш баланс: %s токенов\n\n" +
+                "💎 Ваш баланс: %s %s\n\n" +
                         "✨ Пополнить баланс можно через Telegram Stars\n" +
                         "🎯 1 токен - 0,001 ₽\n\n" +
                         "Выберите сумму для пополнения:",
-                balance
+                balance,
+                textService.tokensFormat(balance.intValue())
         ));
 
         InlineKeyboardMarkup keyboard = createBalanceKeyboard();
